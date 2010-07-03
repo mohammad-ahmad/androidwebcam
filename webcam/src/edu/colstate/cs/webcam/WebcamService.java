@@ -1,10 +1,16 @@
 package edu.colstate.cs.webcam;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
 
 //import android.app.NotificationManager;
 import android.app.Service;
@@ -15,9 +21,10 @@ import android.os.Binder;
 import android.os.IBinder;
 //import android.util.Log;
 
-public class WebcamService extends Service {
+public class WebcamService extends Service implements RosterListener {
 
-    public class WebcamServiceBinder extends Binder {
+
+	public class WebcamServiceBinder extends Binder {
     	WebcamService getService() {
             return WebcamService.this;
         }
@@ -25,6 +32,7 @@ public class WebcamService extends Service {
 	
 	private final IBinder mBinder = new WebcamServiceBinder();
 	private XMPPConnection connection = null;
+	private ArrayList<Friend> friendList = null;
 	
 	
 	@Override
@@ -68,42 +76,57 @@ public class WebcamService extends Service {
         	}
         	connection.connect();
         	connection.login(userName, password);
-    
-        	// cleanup 
-        	Message message = new Message();
-        	message.setTo("kurtn2@22ndcenturysoftware.com");
-        	message.setSubject("Test");
-        	message.setBody("Test message");
-        	message.setType(Message.Type.headline);
-        	connection.sendPacket(message);      
         }
         catch (XMPPException ex)
         {
         	ex.printStackTrace();
         }
-    	
-    	return false;
+
+        // return true if connected
+        if (connection != null && connection.isConnected())
+        {
+        	return true;
+        }
+   
+        // assume failure if we reach here
+        connection = null;
+       	return false;
     }
 
 	// method to get friends (and their status)
-    List<Friend> getFriendList()
+    ArrayList<Friend> getFriendList()
     {
-    	return null;
+    	if (friendList == null)
+    	{
+    		// create friend list
+    		friendList = new ArrayList<Friend>();
+    		
+    		// get current roster and create listener
+        	Roster roster = connection.getRoster();
+           	roster.addRosterListener(this);
+   
+           	// add current logged in friends
+        	Collection<RosterEntry> entries = roster.getEntries();
+           	for (RosterEntry entry : entries)
+        	{
+        		Friend friend = new Friend(entry);
+        		friendList.add(friend);    		
+        	}
+    	}
+    	
+    	return friendList;
     }
     
     // method to send text message to friend
     void sendTextMessage(Friend friend, String messageText)
     {
-    	// ::TODO:: use Friend object 
-    	
     	Message message = new Message();
-    	message.setTo("kurtn2@22ndcenturysoftware.com");
+    	message.setTo(friend.getUser());
     	message.setSubject("Test");
     	message.setBody(messageText);
     	message.setType(Message.Type.headline);
     	connection.sendPacket(message);      
-    	
-    }
+     }
     
     // method to logout
     boolean logout()
@@ -140,5 +163,31 @@ public class WebcamService extends Service {
     void notifyMessageReceived(Friend friend, String message)
     {
     }
+    
+	// Roster callback methods
+    @Override
+	public void entriesAdded(Collection<String> addresses) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void entriesDeleted(Collection<String> addresses) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void entriesUpdated(Collection<String> addresses) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void presenceChanged(Presence presence) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }
