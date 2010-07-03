@@ -1,5 +1,7 @@
 package edu.colstate.cs.webcam;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,16 +31,31 @@ public class WebcamApp {
     {
     	// bind to service
     	doBindService();
-    	
+
    		Runnable runnable = new Runnable() {
 	        public void run() {
 	        	  boolean bLoginResult = mBoundService.login(userName, password, serverHost);
 	        	  
 	        	  // ::TODO:: notify client
+	        	  
+	        	  // ::TODO:: test service code.   Send text message to First logged in friend
+	        	  // This code should eventually be moved
+/*	        	  if (bLoginResult)
+	        	  {
+	        		  ArrayList<Friend> friendList = mBoundService.getFriendList();
+	        		  
+	        		  if (friendList.size() > 0)
+	        		  {
+	        			  Friend firstFriend = friendList.get(0);
+	        			  mBoundService.sendTextMessage(firstFriend, "Test Message");
+	        		  }
+	        	  }
+*/	        	  
+	        	  
 	          }
 	        };
 
-	    // delay execution to allow for service to be bound    
+	    // delay execution to allow for service to be bound
 	    Handler handler = new Handler();
         handler.postDelayed(runnable, 3000);
         
