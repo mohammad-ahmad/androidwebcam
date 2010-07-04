@@ -2,4 +2,8 @@
 <resources>
     <string name="hello">Hello World, SmackTestActivity!</string>
     <string name="app_name">videotest</string>
+    <string name="upload_never">Never</string>
+	<string name="upload_daily">Daily</string>
+	<string name="upload_weekly">Weekly</string>
+    
 </resources>
