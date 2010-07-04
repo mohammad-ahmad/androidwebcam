@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="uploadfrequency">
+    <item>@string/upload_never</item>
+    <item>@string/upload_daily</item>
+    <item>@string/upload_weekly</item>
+    </string-array>
+
+</resources>
