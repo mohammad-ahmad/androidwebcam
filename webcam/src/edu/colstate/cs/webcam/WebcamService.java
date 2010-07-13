@@ -1,19 +1,9 @@
 package edu.colstate.cs.webcam;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.RosterListener;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.packet.Jingle;
 
 import android.app.Service;
 import android.content.Intent;
@@ -21,7 +11,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-public class WebcamService extends Service implements RosterListener, PacketListener {
+public class WebcamService extends Service implements WebcamServiceListener {
 
 
 	public class WebcamServiceBinder extends Binder {
@@ -30,10 +20,9 @@ public class WebcamService extends Service implements RosterListener, PacketList
         }
     }	
 	
+	private WebcamServiceImpl mServiceImpl = null;
+	
 	private final IBinder mBinder = new WebcamServiceBinder();
-	private XMPPConnection connection = null;
-	private ArrayList<Friend> friendList = null;
-	private Roster roster = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) 
@@ -45,6 +34,7 @@ public class WebcamService extends Service implements RosterListener, PacketList
 	public void onCreate( ) 
 	{
 		super.onCreate();
+		mServiceImpl = new WebcamServiceImpl(this);
 	}
 	
 	@Override
@@ -56,9 +46,10 @@ public class WebcamService extends Service implements RosterListener, PacketList
 	@Override
 	public void onDestroy( ) 
 	{
-		if (connection != null)
+		if (mServiceImpl.connection != null)
 		{
-			logout();
+			mServiceImpl.logout();
+			mServiceImpl = null;
 		}
 		
 		super.onDestroy();
@@ -66,95 +57,31 @@ public class WebcamService extends Service implements RosterListener, PacketList
 	
 	
 	// method to login
-    boolean login(String userName, String password, String serverHost)
+    public boolean login(String userName, String password, String serverHost)
     {
-        try
-        {
-        	if (connection == null)
-        	{
-        		connection = new XMPPConnection(serverHost);
-        	}
-        	connection.connect();
-        	connection.login(userName, password);
-        }
-        catch (XMPPException ex)
-        {
-        	ex.printStackTrace();
-        }
-
-        // If connected add listener and return true
-        if (connection != null && connection.isConnected())
-        {
-           	// Register packet listener
-            PacketFilter filter = new PacketTypeFilter(Message.class);
-            connection.addPacketListener(this, filter);        	
-
-    		// get current roster and create listener
-        	roster = connection.getRoster();
-           	roster.addRosterListener(this);
-               
-          	return true;
-        }
-   
-        // assume failure if we reach here
-        connection = null;
-       	return false;
+    	return mServiceImpl.login(userName, password, serverHost);
     }
 
 	// method to get friends (and their status)
     ArrayList<Friend> getFriendList()
     {
-    	if (friendList == null)
-    	{
-    		// create friend list
-    		friendList = new ArrayList<Friend>();
-    		
-        	Collection<RosterEntry> entries = roster.getEntries();
-           	for (RosterEntry entry : entries)
-        	{
-        		Friend friend = new Friend(roster, entry);
-        		friendList.add(friend);    		
-        	}
-    	}
-    	
-    	return friendList;
+    	return mServiceImpl.getFriendList();
     }
     
     // method to send text message to friend
     void sendTextMessage(Friend friend, String messageText)
     {
-    	Message message = new Message();
-    	message.setTo(friend.getUser());
-    	message.setSubject("Test");
-    	message.setBody(messageText);
-    	message.setType(Message.Type.headline);
-    	connection.sendPacket(message);      
+    	 mServiceImpl.sendTextMessage(friend, messageText);
      }
     
     // method to logout
     boolean logout()
     {
-    	boolean bReturnCode = true;
-    	
-    	try
-    	{
-	    	if (connection != null)
-	    	{
-	    		connection.disconnect();
-	    		connection = null;
-	    	}
-    	}
-    	catch (Exception ex)
-    	{
-    		ex.printStackTrace();
-    		bReturnCode = false;
-    	}
-    	
-    	return bReturnCode;
+    	return mServiceImpl.logout();
     }
 
     // Notification methods
-    void notifyFriendListChanged()
+    public void notifyFriendListChanged()
     {
     	Log.i("edu.colstate.cs.webcam.WebcamService", "Friend List changed");
     	
@@ -164,7 +91,7 @@ public class WebcamService extends Service implements RosterListener, PacketList
     	
     }
         
-    void notifyMessageReceived(Message msg)
+    public void notifyMessageReceived(Message msg)
     {
     	String fromUser = msg.getFrom();
     	String message = msg.getBody();
@@ -178,60 +105,63 @@ public class WebcamService extends Service implements RosterListener, PacketList
         sendBroadcast(intent);
     }
     
-	// Roster callback methods
-    @Override
-	public void entriesAdded(Collection<String> addresses) {
-    	
-    	// As there is no constructor in Smack library that takes a string
-    	// and creates a RosterEntry object (we need to rebuild the entire list)
-       	friendList.clear();
-    	Collection<RosterEntry> entries = roster.getEntries();
-       	for (RosterEntry entry : entries)
-    	{
-    		Friend friend = new Friend(roster, entry);
-    		friendList.add(friend);    		
-    	}
-       	
-       	notifyFriendListChanged();
+	
+	// Audio call methods
+	public void callFriend(Friend friend)
+	{
+		mServiceImpl.callFriend(friend);
 	}
-
-	@Override
-	public void entriesDeleted(Collection<String> addresses) {
-
-       	for (String entry : addresses)
-    	{
-       		for (Friend friend : friendList)
-       		{
-       			if (friend.getUser().equals(entry))
-       			{
-       				friendList.remove(friend);
-       			}
-       		}
-    	}
-       	
-       	notifyFriendListChanged();
-	}
-
-	@Override
-	public void entriesUpdated(Collection<String> addresses) {
-       	notifyFriendListChanged();
+	
+	public void receiveCallRequest(Jingle jingle)
+	{
+		// ::TODO:: send notification  (for now automatically accept the call, for test purposes)
+		ArrayList<Friend> friendList = mServiceImpl.getFriendList();
 		
+		Friend friend = friendList.get(0);
+	    for (Friend aFriend : friendList)
+	    {
+	       	if (aFriend.getUser().equals(jingle.getFrom()))
+	       	{
+	       		friend = aFriend;
+	       	}
+	    }
+	       				
+		// ::TODO:: remove test code
+		acceptCall(friend);
+	}
+	
+	public void acceptCall(Friend friend)
+	{
+		mServiceImpl.acceptCall(friend);
+	}
+	
+	public void callEstablished(Jingle jingle)
+	{
+		// ::TODO:: send notification that call was established
+		
+		
+		// ::TODO:: remove test code
+		String strTestData = "This is a test";
+		
+		mServiceImpl.sendAudioData(strTestData.getBytes(), strTestData.getBytes().length);
+	}
+	
+	public void rejectCall(Friend friend)
+	{
+		mServiceImpl.rejectCall(friend);
+	}
+	
+	public void sendAudioData(byte audioData[], int bufLen)
+	{
+		mServiceImpl.sendAudioData(audioData, bufLen);
 	}
 
-	@Override
-	public void presenceChanged(Presence presence) {
-       	notifyFriendListChanged();
+	public void receiveAudioData(byte audioData[], int bufLen)
+	{
+		String strData = new String(audioData, bufLen);
+		System.out.println(strData);
+		
+		// ::TODO:: send notification that audio data was received
 	}
-
-	// Packet Listener method
-	@Override
-	public void processPacket(Packet packet) {
-		if (packet instanceof Message)
-		{
-			Message msg = (Message)packet;
-			notifyMessageReceived(msg);
-		}
-	}
-
 	
 }

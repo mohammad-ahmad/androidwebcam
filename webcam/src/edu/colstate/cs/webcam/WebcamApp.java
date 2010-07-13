@@ -36,21 +36,31 @@ public class WebcamApp {
 	        public void run() {
 	        	  boolean bLoginResult = mBoundService.login(userName, password, serverHost);
 	        	  
-	        	  // ::TODO:: notify client
+	        	  // ::TODO:: notify client of login result
 	        	  
-	        	  // ::TODO:: test service code.   Send text message to First logged in friend
-	        	  // This code should eventually be moved
-/*	        	  if (bLoginResult)
+	        	  // ::TODO:: Test service code.   
+	        	  // Send text message to kurtn2 user, and call kurtn2 user
+	        	  // ::TODO::  This code should eventually be removed
+	        	  
+	        	  if (userName.equals("kurtn2"))
+	        		  return;
+	        	  
+	        	  if (bLoginResult)
 	        	  {
 	        		  ArrayList<Friend> friendList = mBoundService.getFriendList();
 	        		  
 	        		  if (friendList.size() > 0)
 	        		  {
-	        			  Friend firstFriend = friendList.get(0);
-	        			  mBoundService.sendTextMessage(firstFriend, "Test Message");
+	        	       		for (Friend friend : friendList)
+	        	       		{
+	        	       			if (friend.getUser().startsWith("kurtn2"))
+	        	       			{
+	      	        			  mBoundService.sendTextMessage(friend, "Test Message");
+	    	        			  mBoundService.callFriend(friend);
+	        	       			}
+	        	       		}
 	        		  }
-	        	  }
-*/	        	  
+	        	  }	        	  
 	        	  
 	          }
 	        };
