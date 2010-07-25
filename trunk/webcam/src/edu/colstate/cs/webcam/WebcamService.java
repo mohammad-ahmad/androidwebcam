@@ -141,9 +141,9 @@ public class WebcamService extends Service implements WebcamServiceListener {
 		
 		
 		// ::TODO:: remove test code
-		String strTestData = "This is a test";
+//		String strTestData = "This is a test";
 		
-		mServiceImpl.sendAudioData(strTestData.getBytes(), strTestData.getBytes().length);
+//		mServiceImpl.sendAudioData(strTestData.getBytes(), strTestData.getBytes().length);
 	}
 	
 	public void rejectCall(Friend friend)
