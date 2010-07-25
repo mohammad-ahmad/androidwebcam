@@ -2,7 +2,7 @@ package edu.colstate.cs.webcam;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
+//import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,10 +13,10 @@ import android.os.IBinder;
 public class WebcamApp {
 	private boolean mIsBound = false;
     private WebcamService mBoundService = null;
-    private Activity mActivity = null;
+    private Context mActivity = null;
     static WebcamApp mApp = null;
     
-    static WebcamApp getApp(Activity activity)
+    static WebcamApp getApp(Context activity)
     {
     	if (mApp == null)
     	{
@@ -25,9 +25,39 @@ public class WebcamApp {
     	
     	return mApp;
     }
+    
+    // Receiver method implementation
+    public void incomingCallEstablised()
+    {
+		// Start Audio Recording in new thread
+   		Runnable runnable = new Runnable() {
+	        public void run() {
+	        	AudioUtils.getAudioUtils(mActivity).record();
+	        }};
+	        
+		Handler handler = new Handler();
+	    handler.postDelayed(runnable, 0);
+	    
+	    // Setup mechanism for audio playback
+	    AudioUtils.getAudioUtils(mActivity).play();
+	}
+    
+	public void receiveAudioData(byte audioData[], int bufLen)
+	{
+	    AudioUtils.getAudioUtils(mActivity).playMusicData(audioData, bufLen);
+	}
+
 
     // Service API methods
-    void sendLoginRequest(final String userName, final String password, final String serverHost)
+	public void sendAudioData(byte audioData[], int bufLen)
+	{
+		if (mBoundService != null)
+		{
+			mBoundService.sendAudioData(audioData, bufLen);
+		}
+	}
+
+	void sendLoginRequest(final String userName, final String password, final String serverHost)
     {
     	// bind to service
     	doBindService();
@@ -72,7 +102,7 @@ public class WebcamApp {
     }
 
 
-    public WebcamApp(Activity activity)
+    public WebcamApp(Context activity)
     {
     	mActivity = activity;
     	
