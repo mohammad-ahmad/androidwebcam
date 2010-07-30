@@ -12,7 +12,7 @@ public class IMContacts2 extends ListActivity {
  
 	private Cursor cur;
     public static final String TAG = "IMContacts2";
-
+    
     protected void onCreate(Bundle savedInstanceState) {
     	
     	Log.d(TAG, "Activity State: onCreate() 1");
@@ -31,11 +31,19 @@ public class IMContacts2 extends ListActivity {
  		// Desired columns to be bound
  		String[] columns = {ContactsContract.CommonDataKinds.Im.DATA, ContactsContract.CommonDataKinds.Im.TYPE};
  		int[] to = new int[] {R.id.name_entry};
- 		SimpleCursorAdapter cAdapter = new SimpleCursorAdapter(this, R.layout.list_entry, cur, columns, to);
- 		
+ 		SimpleCursorAdapter cAdapter = new SimpleCursorAdapter(this, R.layout.list_entry, cur, columns, to);	
  		setListAdapter(cAdapter);
+
       	}
-    
-	public void clickHandler1(View v) {
-	}
+
+    public void onListButtonClick(View v) throws Exception {
+    	// get the row the clicked button is in
+    	LinearLayout vwParentRow = (LinearLayout)v.getParent();
+    	Button btnChild = (Button)vwParentRow.getChildAt(0);
+    	TextView tvChild = (TextView)vwParentRow.getChildAt(1);
+    	btnChild.setText("Connecting..."); 	
+    	Log.d(TAG, "onListButtonClick: click handled for contact " + tvChild.getText());
+    	// email address is in tvChild.getText()
+    }
+        
  }
