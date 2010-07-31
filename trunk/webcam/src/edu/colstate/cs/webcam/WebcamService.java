@@ -112,6 +112,22 @@ public class WebcamService extends Service implements WebcamServiceListener {
 		mServiceImpl.callFriend(friend);
 	}
 	
+	private Friend getFriendFromJingle(Jingle jingle)
+	{
+		ArrayList<Friend> friendList = mServiceImpl.getFriendList();
+		
+		Friend friend = friendList.get(0);
+	    for (Friend aFriend : friendList)
+	    {
+	       	if (aFriend.getUser().equals(jingle.getFrom()))
+	       	{
+	       		friend = aFriend;
+	       	}
+	    }
+	    
+	    return friend;
+	}
+	
 	public void receiveCallRequest(Jingle jingle)
 	{
 		// ::TODO:: send notification  (for now automatically accept the call, for test purposes)
@@ -137,13 +153,13 @@ public class WebcamService extends Service implements WebcamServiceListener {
 	
 	public void callEstablished(Jingle jingle)
 	{
-		// ::TODO:: send notification that call was established
-		
-		
-		// ::TODO:: remove test code
-//		String strTestData = "This is a test";
-		
-//		mServiceImpl.sendAudioData(strTestData.getBytes(), strTestData.getBytes().length);
+        Intent intent = new Intent("edu.colstate.webcam.CALL_ESTABLISHED");
+        
+        Friend friend = getFriendFromJingle(jingle);
+        // ::TODO:: check if we can pass in friend object (implement parcelable interface)  
+        intent.putExtra("callfrom", friend.getUser());
+  
+        sendBroadcast(intent);
 	}
 	
 	public void rejectCall(Friend friend)
@@ -160,8 +176,15 @@ public class WebcamService extends Service implements WebcamServiceListener {
 	{
 		String strData = new String(audioData, bufLen);
 		System.out.println(strData);
+
+		// send notification that audio data was received
+	    Intent intent = new Intent("edu.colstate.webcam.AUDIO_DATA_RECEIVED");
+	        
+	    intent.putExtra("audiodata", audioData);
+	    intent.putExtra("audiodatalen", bufLen);
+	  
+	    sendBroadcast(intent);
 		
-		// ::TODO:: send notification that audio data was received
 	}
 	
 }
