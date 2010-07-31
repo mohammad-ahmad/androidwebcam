@@ -125,6 +125,7 @@ public class MediaRelaySocket implements Runnable {
 			catch (Exception ex)
 			{
 				ex.printStackTrace();
+				numBytesRead = -1;
 			}
 			
 			

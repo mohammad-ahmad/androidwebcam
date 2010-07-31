@@ -59,6 +59,17 @@ public class WebcamApp {
 			mBoundService.sendAudioData(audioData, bufLen);
 		}
 	}
+	
+	void callFriend(Friend friend) 
+	{
+		if (mBoundService == null)
+		{
+			// ::TODO:: determine how to handle not being logged in.
+			// An exception should be thrown, and a dialog displayed.
+			return;
+		}
+		mBoundService.callFriend(friend);
+	}
 
 	void sendLoginRequest(final String userName, final String password, final String serverHost)
     {
@@ -70,11 +81,9 @@ public class WebcamApp {
 	        	  boolean bLoginResult = mBoundService.login(userName, password, serverHost);
 	        	  
 	        	  // ::TODO:: notify client of login result
-	        	  
-	        	  // ::TODO:: Test service code.   
-	        	  // Send text message to kurtn2 user, and call kurtn2 user
-	        	  // ::TODO::  This code should eventually be removed
-	        	  
+
+	        	  // commented out test service code
+/*	        	  
 	        	  if (userName.equals("kurtn2"))
 	        		  return;
 	        	  
@@ -94,7 +103,7 @@ public class WebcamApp {
 	        	       		}
 	        		  }
 	        	  }	        	  
-	        	  
+*/	        	  
 	          }
 	        };
 

@@ -34,6 +34,9 @@ public class IMContacts2 extends ListActivity {
  		SimpleCursorAdapter cAdapter = new SimpleCursorAdapter(this, R.layout.list_entry, cur, columns, to);	
  		setListAdapter(cAdapter);
 
+ 		// ::TODO:: display dialog box, if UserID/Password not stored in Properties
+        WebcamApp.getApp(this).sendLoginRequest("kurtn", "coolit12", "22ndcenturysoftware.com");
+
       	}
 
     public void onListButtonClick(View v) throws Exception {
@@ -44,6 +47,15 @@ public class IMContacts2 extends ListActivity {
     	btnChild.setText("Connecting..."); 	
     	Log.d(TAG, "onListButtonClick: click handled for contact " + tvChild.getText());
     	// email address is in tvChild.getText()
+    	
+    	Friend friend = new Friend(tvChild.getText().toString());
+        WebcamApp.getApp(this).callFriend(friend);
+        
+        // ::TODO:: after call is connected, change to screen allowing user to disconnect/stop call,
+        // or change the GUI button from Connecting... to Disconnected
+        
+    	
+    	
     }
         
  }

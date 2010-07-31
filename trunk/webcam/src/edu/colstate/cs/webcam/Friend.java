@@ -15,8 +15,12 @@ public class Friend
 	
 	private RosterEntry rosterEntry = null;
 	private Roster roster = null;
+	private String emailAddress = null;
 
-	
+	public Friend(String emailAddress)
+	{
+		this.emailAddress = emailAddress;
+	}
 	
 	public Friend(Roster roster, RosterEntry rosterEntry)
 	{
@@ -24,8 +28,19 @@ public class Friend
 		this.rosterEntry = rosterEntry;
 	}
 
+	public String getEmailAddress()
+	{
+		return emailAddress;
+	}
+	
 	public String getUser()
 	{
+		// return email address, with /Smack appended
+		if (rosterEntry == null)
+		{
+			return getEmailAddress() + "/Smack";
+		}
+		
 		return rosterEntry.getUser();
 	}
 	
