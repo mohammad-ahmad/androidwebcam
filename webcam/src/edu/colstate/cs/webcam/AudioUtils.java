@@ -81,24 +81,28 @@ public class AudioUtils {
 		                                              audioEncoding, bufferSize);
 		   
 		    short[] buffer = new short[bufferSize];   
+		    byte[] audioBuffer = new byte[bufferSize*2];
 		    audioRecord.startRecording();
 		    isRecording = true;
 
 
 		    while (isRecording) {
-		      int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
+//		      int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
+		      
+		      int bufferReadResult = audioRecord.read(audioBuffer, 0, bufferSize);
 		      
 		      // Convert short[] array to byte[] array
 		      if (bufferReadResult > 0)
 		      {
-		    	  byte byteArray[] = new byte[bufferReadResult*2];
+/*		    	  byte byteArray[] = new byte[bufferReadResult*2];
 		    	  for (int i=0; i < bufferReadResult; i++)
 		    	  {
 		    		  byteArray[2*i] = (byte) buffer[i];
 		    		  byteArray[2*i+1] = (byte) (buffer[i] >>> 8);
 		    	  }
+*/		    	  
+		    	  app.sendAudioData(audioBuffer, bufferSize);
 		    	  
-		    	  app.sendAudioData(byteArray, bufferReadResult*2);
 		      }
 		    }
 

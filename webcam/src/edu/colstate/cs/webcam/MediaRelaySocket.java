@@ -15,8 +15,10 @@ public class MediaRelaySocket implements Runnable {
     {
     	try
     	{
-    		// establish socket
+    		// establish socket and set read timeout to 0
     		socket = new Socket(strHostName, iPort);
+			socket.setSoTimeout(0);
+
     		is = socket.getInputStream();
 
     		// create thread to read data
@@ -91,6 +93,9 @@ public class MediaRelaySocket implements Runnable {
 		{
 			OutputStream os = socket.getOutputStream();
 			os.write(audioData, 0, bufLen);
+			
+			// flush to force send
+			os.flush();
 		}
 		catch (IOException ex)
 		{
@@ -105,7 +110,7 @@ public class MediaRelaySocket implements Runnable {
 		
 		byte byteArray[] = new byte[4097];
 		int numBytesRead = 0;
-		while (!socket.isClosed())
+		while (!socket.isClosed() && numBytesRead != -1)
 		{
 			try
 			{
@@ -122,6 +127,8 @@ public class MediaRelaySocket implements Runnable {
 			{
 				ex.printStackTrace();
 			}
+			
+			
 		}
 		
 	}

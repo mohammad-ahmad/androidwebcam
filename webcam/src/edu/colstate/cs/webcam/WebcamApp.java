@@ -32,11 +32,14 @@ public class WebcamApp {
 		// Start Audio Recording in new thread
    		Runnable runnable = new Runnable() {
 	        public void run() {
+	        	
 	        	AudioUtils.getAudioUtils(mActivity).record();
 	        }};
 	        
-		Handler handler = new Handler();
-	    handler.postDelayed(runnable, 0);
+	    Thread t = new Thread(runnable);
+	    t.start();
+//		Handler handler = new Handler();
+//	    handler.postDelayed(runnable, 0);
 	    
 	    // Setup mechanism for audio playback
 	    AudioUtils.getAudioUtils(mActivity).play();
