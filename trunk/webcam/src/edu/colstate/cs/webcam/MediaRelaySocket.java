@@ -105,7 +105,6 @@ public class MediaRelaySocket implements Runnable {
 		}
 	}
 
-	@Override
 	public void run() {
 		
 		byte byteArray[] = new byte[4097];
