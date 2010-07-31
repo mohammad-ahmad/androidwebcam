@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -22,6 +23,7 @@ public class AudioUtils {
 	private static AudioUtils mAudioUtils = null;
 	private WebcamApp app = null;
 	private AudioTrack audioTrack = null;
+	private ByteArrayOutputStream incomingAudioData = null;
 	
 	public static AudioUtils getAudioUtils(Context context)
 	{
@@ -101,7 +103,7 @@ public class AudioUtils {
 		    		  byteArray[2*i+1] = (byte) (buffer[i] >>> 8);
 		    	  }
 */		    	  
-		    	  app.sendAudioData(audioBuffer, bufferSize);
+		    	  app.sendAudioData(audioBuffer, bufferReadResult);
 		    	  
 		      }
 		    }
@@ -127,12 +129,32 @@ public class AudioUtils {
 		                                           AudioTrack.MODE_STREAM);
 		    // Start playback
 		    audioTrack.play();
+			incomingAudioData = new ByteArrayOutputStream();
 		  
 		}	
 	
 	    public void playMusicData(byte audioData[], int length)
 	    {
-	    	audioTrack.write(audioData,0, length);
+			audioTrack.write(audioData, 0, length);
+/*	    	try {
+				incomingAudioData.write(audioData);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	
+			if (incomingAudioData.size() > 300000)
+			{
+				audioTrack.write(incomingAudioData.toByteArray(), 0, incomingAudioData.size());
+				try {
+					incomingAudioData.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				incomingAudioData = new ByteArrayOutputStream();
+			}
+*/			
 	    }
 	
 }
