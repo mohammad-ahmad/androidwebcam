@@ -145,7 +145,6 @@ public class WebcamServiceImpl implements RosterListener, PacketListener, MediaA
     }
     
 	// Roster callback methods
-    @Override
 	public void entriesAdded(Collection<String> addresses) {
     	
     	// As there is no constructor in Smack library that takes a string
@@ -161,7 +160,6 @@ public class WebcamServiceImpl implements RosterListener, PacketListener, MediaA
        	notifyFriendListChanged();
 	}
 
-	@Override
 	public void entriesDeleted(Collection<String> addresses) {
 
        	for (String entry : addresses)
@@ -178,13 +176,11 @@ public class WebcamServiceImpl implements RosterListener, PacketListener, MediaA
        	notifyFriendListChanged();
 	}
 
-	@Override
 	public void entriesUpdated(Collection<String> addresses) {
        	notifyFriendListChanged();
 		
 	}
 
-	@Override
 	public void presenceChanged(Presence presence) {
        	notifyFriendListChanged();
 	}
@@ -245,7 +241,6 @@ public class WebcamServiceImpl implements RosterListener, PacketListener, MediaA
 	}
 	
 	// Packet Listener method
-	@Override
 	public void processPacket(Packet packet) {
 		
 		System.out.println(packet.toXML());
