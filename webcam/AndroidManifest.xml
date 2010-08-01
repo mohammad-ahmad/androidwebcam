@@ -12,6 +12,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".PreferencesActivity" />
+
 <service
 android:enabled="true"
 android:name=".WebcamService">

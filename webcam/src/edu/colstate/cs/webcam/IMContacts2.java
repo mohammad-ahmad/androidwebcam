@@ -1,6 +1,8 @@
 package edu.colstate.cs.webcam;
  
 import android.app.ListActivity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -33,13 +35,43 @@ public class IMContacts2 extends ListActivity {
  		int[] to = new int[] {R.id.name_entry};
  		SimpleCursorAdapter cAdapter = new SimpleCursorAdapter(this, R.layout.list_entry, cur, columns, to);	
  		setListAdapter(cAdapter);
+ 
+ 		// launch preferences dialog if required
+ 		SharedPreferences settings = getSharedPreferences(PreferencesActivity.PREFS_NAME, 0);
+  		String strUserID = settings.getString("loginid", "");
+ 		String strPassword = settings.getString("password", "");
+ 		String strServerHost = settings.getString("serverhost", "");
 
- 		// ::TODO:: display dialog box, if UserID/Password not stored in Properties
-        WebcamApp.getApp(this).sendLoginRequest("kurtn", "coolit12", "22ndcenturysoftware.com");
+ 		if (strUserID.equals(""))
+ 		{
+ 			Intent intent = new Intent(this, PreferencesActivity.class);
+ 			startActivityForResult(intent, 1);
+  		}
+ 		else
+ 		{
+ 	        WebcamApp.getApp(this).sendLoginRequest(strUserID, strPassword, strServerHost);
+  		}
+    }
+    
+    
 
-      	}
+    @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		// If we are called from here, this means we returned from the Preferences Dialog
+		
+		// ::TODO:: check return value (for now login in user)
+ 		SharedPreferences settings = getSharedPreferences(PreferencesActivity.PREFS_NAME, 0);
+  		String strUserID = settings.getString("loginid", "");
+ 		String strPassword = settings.getString("password", "");
+ 		String strServerHost = settings.getString("serverhost", "");
+	    WebcamApp.getApp(this).sendLoginRequest(strUserID, strPassword, strServerHost);
+	}
 
-    public void onListButtonClick(View v) throws Exception {
+
+
+	public void onListButtonClick(View v) throws Exception {
     	// get the row the clicked button is in
     	LinearLayout vwParentRow = (LinearLayout)v.getParent();
     	Button btnChild = (Button)vwParentRow.getChildAt(0);
