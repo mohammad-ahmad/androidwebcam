@@ -1,0 +1,1 @@
+The goal of this project is to develop an Android peer-to-peer communication client which supports text chat, audio messaging, and webcam-like video sharing based on the XMPP protocol.
